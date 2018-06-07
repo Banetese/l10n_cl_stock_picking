@@ -49,8 +49,10 @@ class StockPicking(models.Model):
                                 taxes.setdefault(t.id,[t, 0])
                                 taxes[t.id][1] += move.subtotal
                 if taxes:
+                    amount_untaxed = 0
                     for t, value in taxes.items():
                         amount_tax += value[0].compute_all(value[1], rec.currency_id, 1)['taxes'][0]['amount']
+                        amount_untaxed += value[0].compute_all(value[1], rec.currency_id, 1)['total_excluded']
                 rec.amount_tax = amount_tax
                 rec.amount_untaxed = amount_untaxed
             rec.amount_total = rec.amount_untaxed + rec.amount_tax
@@ -209,7 +211,7 @@ class StockLocation(models.Model):
     sii_document_class_id = fields.Many2one(
             'sii.document_class',
             string='Document Type',
-            required=True,
+            required=False,
         )
     sequence_id = fields.Many2one(
             'ir.sequence',
