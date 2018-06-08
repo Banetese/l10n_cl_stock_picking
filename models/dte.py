@@ -164,6 +164,8 @@ class stock_picking(models.Model):
         tz = pytz.timezone('America/Santiago')
         return datetime.now(tz).strftime(formato)
 
+
+
     '''
     Funcion auxiliar para conversion de codificacion de strings
      proyecto experimentos_dte
@@ -727,6 +729,36 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
             c += 1
         return cadena
 
+    @api.model
+    def _arregla_str(self, texto, size=1):
+        c = 0
+        cadena = ""
+        special_chars = [
+         [u'á', 'a'],
+         [u'é', 'e'],
+         [u'í', 'i'],
+         [u'ó', 'o'],
+         [u'ú', 'u'],
+         [u'ñ', 'n'],
+         [u'Á', 'A'],
+         [u'É', 'E'],
+         [u'Í', 'I'],
+         [u'Ó', 'O'],
+         [u'Ú', 'U'],
+         [u'Ñ', 'N']]
+
+        while c < size and c < len(texto):
+            cadena += texto[c]
+            c += 1
+
+        
+        for char in special_chars:
+          try:
+            cadena = cadena.replace(char[0], char[1])
+          except:
+            pass
+        return cadena
+
     @api.multi
     def do_transfer(self):
         super(stock_picking,self).do_transfer()
@@ -895,9 +927,10 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
         if no_product:
             result['TED']['DD']['MNT'] = 0
         for line in self.pack_operation_product_ids:
-            result['TED']['DD']['IT1'] = self._acortar_str(line.product_id.name,40)
             if line.product_id.default_code:
-                result['TED']['DD']['IT1'] = self._acortar_str(line.product_id.name.replace('['+line.product_id.default_code+'] ',''),40)
+                result['TED']['DD']['IT1'] = self._arregla_str(line.product_id.name.replace('['+line.product_id.default_code+'] ','')[:40])
+            else:
+                result['TED']['DD']['IT1'] = self._arregla_str(line.product_id.name[:40])
             break
 
         resultcaf = self.get_caf_file()
@@ -966,10 +999,10 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
                     if t.amount == 0 or t.sii_code in [0]:#@TODO mejor manera de identificar exento de afecto
                         lines['IndExe'] = 1
                         MntExe += int(round(line.subtotal, 0))
-            lines['NmbItem'] = self._acortar_str(line.product_id.name,80) #
+            lines['NmbItem'] = line.product_id.name[:40]
             lines['DscItem'] = self._acortar_str(line.name, 1000) #descripción más extenza
             if line.product_id.default_code:
-                lines['NmbItem'] = self._acortar_str(line.product_id.name.replace('['+line.product_id.default_code+'] ',''),80)
+                lines['NmbItem'] = line.product_id.name.replace('['+line.product_id.default_code+'] ','')[:40]
             qty = round(line.qty_done, 4)
             if qty <=0:
                 raise UserError("¡No puede ser menor o igual que 0!, tiene líneas con cantidad realiada 0")
