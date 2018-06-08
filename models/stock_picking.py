@@ -201,7 +201,7 @@ class StockPicking(models.Model):
                 if not m.price_unit > 0 or not m.name:
                     m.price_unit = m.product_id.lst_price
                     if not m.name:
-                    	m.name = m.product_id.name
+                        m.name = m.product_id.name
                     m.operation_line_tax_ids = m.product_id.taxes_id # @TODO mejorar asignación
 
     def _prepare_pack_ops(self, cr, uid, picking, quants, forced_qties, context=None):
@@ -409,8 +409,8 @@ class StockPackOperation(models.Model):
                     rec.discount = l.discount
                     rec.operation_line_tax_ids = l.move_line_tax_ids
             if not rec.price_unit > 0 or not rec.name:
-            	if not rec.name:
-            		rec.name = rec.product_id.name
+                if not rec.name:
+                    rec.name = rec.product_id.name
                 rec.price_unit = rec.product_id.lst_price
                 rec.operation_line_tax_ids = rec.product_id.taxes_id # @TODO mejorar asignación
 
@@ -487,7 +487,7 @@ class StockMove(models.Model):
             if not rec.price_unit_sales > 0 or not rec.name:
                 rec.price_unit_sales = rec.product_id.lst_price
                 if not rec.name:
-                	rec.name = rec.product_id.name
+                    rec.name = rec.product_id.name
                 rec.move_line_tax_ids = rec.product_id.taxes_id # @TODO mejorar asignación
 
     @api.onchange('name','product_id','move_line_tax_ids','product_uom_qty')
