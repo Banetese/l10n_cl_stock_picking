@@ -23,13 +23,13 @@
     'test': [],
     'data': [
         'security/ir.model.access.csv',
-        'views/dte.xml',
         'views/stock_picking.xml',
+        'views/dte.xml',
         'views/layout.xml',
         'views/libro_guias.xml',
         "views/account_invoice.xml",
         'wizard/masive_send_dte.xml',
     ],
-    'version': '0.8.2',
+    'version': '0.8.4',
     'application': True,
 }
