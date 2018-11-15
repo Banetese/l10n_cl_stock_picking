@@ -303,13 +303,13 @@ version="1.0">
     def action_done(self):
         res = super(stock_picking, self).action_done()
         for s in self:
-            if not s.use_documents:
+            if not s.use_documents or s.location_id.restore_mode:
                 continue
             if not s.sii_document_number and s.location_id.sequence_id.is_dte:
                 s.sii_document_number = s.location_id.sequence_id.next_by_id()
                 document_number = (s.location_id.sii_document_class_id.doc_code_prefix or '') + s.sii_document_number
                 s.name = document_number
-            if s.picking_type_id.code in ['outgoing', 'internal']: # @TODO diferenciar si es de salida o entrada para internal
+            if s.picking_type_id.code in ['outgoing', 'internal']:# @TODO diferenciar si es de salida o entrada para internal
                 s.responsable_envio = self.env.uid
                 s.sii_result = 'NoEnviado'
                 s._timbrar()
@@ -459,7 +459,7 @@ version="1.0">
         RutEmisor = self.format_vat(self.company_id.vat)
         result['TED']['DD']['RE'] = RutEmisor
         result['TED']['DD']['TD'] = self.location_id.sii_document_class_id.sii_code
-        result['TED']['DD']['F']  = self.get_folio()
+        result['TED']['DD']['F'] = self.get_folio()
         result['TED']['DD']['FE'] = fields.Datetime.context_timestamp(self.with_context(tz='America/Santiago'), fields.Datetime.from_string(self.scheduled_date)).strftime(DF)
         if not partner_id.commercial_partner_id.vat:
             raise UserError(_("Fill Partner VAT"))
@@ -669,7 +669,7 @@ version="1.0">
                 dtes,
                 signature_d,SubTotDTE,
             )
-        envio_dte  = self.create_template_env(dtes)
+        envio_dte = self.create_template_env(dtes)
         envio_dte = self.env['account.invoice'].sudo(self.env.user.id).with_context({'company_id': company_id.id}).sign_full_xml(
             envio_dte.replace('<?xml version="1.0" encoding="ISO-8859-1"?>\n', ''),
             'SetDoc',
@@ -737,7 +737,7 @@ version="1.0">
         for r in self:
             if not r.sii_xml_request and not r.sii_xml_request.sii_send_ident:
                 raise UserError('No se ha enviado aún el documento, aún está en cola de envío interna en odoo')
-            if r.sii_xml_request.state not in [ 'Aceptado', 'Rechazado']:
+            if r.sii_xml_request.state not in ['Aceptado', 'Rechazado']:
                 r.sii_xml_request.get_send_status(r.env.user)
         self._get_dte_status()
         self.get_sii_result()

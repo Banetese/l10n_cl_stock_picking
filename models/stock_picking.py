@@ -128,24 +128,24 @@ class StockPicking(models.Model):
             'fleet.vehicle',
             string="Vehículo",
             readonly=False,
-            states={'done':[('readonly',True)]},
+            states={'done': [('readonly', True)]},
         )
     chofer = fields.Many2one(
             'res.partner',
             string="Chofer",
             readonly=False,
-            states={'done':[('readonly',True)]},
+            states={'done': [('readonly', True)]},
         )
     patente = fields.Char(
             string="Patente",
             readonly=False,
-            states={'done':[('readonly',True)]},
+            states={'done': [('readonly', True)]},
         )
     contact_id = fields.Many2one(
             'res.partner',
             string="Contacto",
             readonly=False,
-            states={'done':[('readonly',True)]},
+            states={'done': [('readonly', True)]},
         )
     invoiced = fields.Boolean(
             string='Invoiced?',
@@ -187,6 +187,10 @@ class StockLocation(models.Model):
     sii_code = fields.Char(
             string="Código de Sucursal SII",
         )
+    restore_mode = fields.Boolean(
+        string="Modo Restauración",
+        default=False,
+    )
 
 
 class Referencias(models.Model):
@@ -195,7 +199,7 @@ class Referencias(models.Model):
     origen = fields.Char(
             string="Origin",
         )
-    sii_referencia_TpoDocRef =  fields.Many2one(
+    sii_referencia_TpoDocRef = fields.Many2one(
             'sii.document_class',
             string="SII Reference Document Type",
         )
@@ -225,7 +229,7 @@ class StockMove(models.Model):
     def _set_price_from(self):
         if self.picking_id.reference:
             for ref in self.picking_id.reference:
-                if ref.sii_referencia_TpoDocRef.sii_code in [ 33 ]:# factura venta
+                if ref.sii_referencia_TpoDocRef.sii_code in [33]:
                     il = self.env['account.invoice'].search(
                             [
                                     ('sii_document_number', '=', ref.origen),
